@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Table with Admin Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        form, #studentForm {
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 200px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #adminLogin {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Student Information Table</h2>
+
+    <!-- Displaying the student table for parents or users -->
+    <table id="studentTable">
+        <tr>
+            <th>Adm No</th>
+            <th>Name</th>
+            <th>Page</th>
+            <th>Opage</th>
+        </tr>
+    </table>
+
+    <!-- Admin Login -->
+    <div id="adminLogin">
+        <h3>Admin Login</h3>
+        <label for="password">Enter Admin Password:</label>
+        <input type="password" id="adminPassword">
+        <button onclick="checkPassword()">Login</button>
+    </div>
+
+    <!-- Admin Interface (Form for updating the table) -->
+    <form id="studentForm">
+        <h3>Update Student Data</h3>
+        <label for="admno">Adm No:</label>
+        <input type="text" id="admno" required><br>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br>
+
+        <label for="page">Page:</label>
+        <input type="text" id="page" required><br>
+
+        <label for="opage">Opage:</label>
+        <input type="text" id="opage" required><br>
+
+        <button type="button" onclick="addOrUpdateStudent()">Add/Update Student</button>
+    </form>
+
+    <script>
+        // Load data from localStorage and populate the table
+        function loadStudentData() {
+            var storedData = localStorage.getItem('students');
+            if (storedData) {
+                var students = JSON.parse(storedData);
+                var table = document.getElementById('studentTable');
+                
+                // Clear existing rows (if any) before adding fresh data
+                table.innerHTML = `
+                    <tr>
+                        <th>Adm No</th>
+                        <th>Name</th>
+                        <th>Page</th>
+                        <th>Opage</th>
+                    </tr>
+                `;
+
+                // Add rows from stored data
+                students.forEach(function(student) {
+                    var row = table.insertRow();
+                    row.insertCell(0).textContent = student.admno;
+                    row.insertCell(1).textContent = student.name;
+                    row.insertCell(2).textContent = student.page;
+                    row.insertCell(3).textContent = student.opage;
+                });
+            }
+        }
+
+        // Function to add or update student data in localStorage
+        function addOrUpdateStudent() {
+            var admno = document.getElementById('admno').value;
+            var name = document.getElementById('name').value;
+            var page = document.getElementById('page').value;
+            var opage = document.getElementById('opage').value;
+
+            var students = localStorage.getItem('students');
+            students = students ? JSON.parse(students) : [];
+
+            // Check if the admno already exists in the data
+            var existingStudent = students.find(s => s.admno === admno);
+
+            if (existingStudent) {
+                // Update existing student's data
+                existingStudent.name = name;
+                existingStudent.page = page;
+                existingStudent.opage = opage;
+            } else {
+                // Add new student to the list
+                students.push({ admno, name, page, opage });
+            }
+
+            // Save back to localStorage
+            localStorage.setItem('students', JSON.stringify(students));
+
+            // Reload the table with updated data
+            loadStudentData();
+
+            // Clear form after adding/updating
+            document.getElementById('studentForm').reset();
+        }
+
+        // Load data when the page loads
+        window.onload = function() {
+            loadStudentData();
+        };
+
+        // Function to check the admin password
+        function checkPassword() {
+            var inputPassword = document.getElementById('adminPassword').value;
+            var correctPassword = 'admin123'; // Set your desired admin password here
+
+            if (inputPassword === correctPassword) {
+                document.getElementById('studentForm').style.display = 'block'; // Show form
+                document.getElementById('adminLogin').style.display = 'none'; // Hide login
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+    </script>
+
+</body>
+</html>
